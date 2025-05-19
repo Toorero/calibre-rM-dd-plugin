@@ -1,4 +1,7 @@
 #!/bin/bash
+
+# SPDX-License-Identifier: EUPL-1.2
+
 OUT="${OUT:-out}"
 set -euxo pipefail
 rm -rf ./calibre-rM-dd-driver-plugin.zip "$OUT"

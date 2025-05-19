@@ -1,9 +1,12 @@
+# SPDX-License-Identifier: EUPL-1.2
+
 from calibre.utils.config import JSONConfig
 from PyQt5.Qt import QWidget, QLabel, QLineEdit, QGridLayout
 
 prefs = JSONConfig("plugins/rmapi_device_plugin")
 prefs.defaults["rmapi"] = "rmapi"
 prefs.defaults["export_path"] = "calibre_export"
+
 
 class ConfigWidget(QWidget):
     def __init__(self):

@@ -1,3 +1,4 @@
+# SPDX-License-Identifier: EUPL-1.2
 
 from calibre.devices.interface import DevicePlugin, BookList
 from calibre.devices.errors import FreeSpaceError
@@ -57,18 +58,23 @@ class ReMarkablePlugin(DevicePlugin):
 
         print(f"rmapi binary detected at {self.rmapi_path}")
         print("Probing rmapi to check if it's setup correctly...")
-        res = subprocess.Popen([self.rmapi_path, "-ni", "account"], stdout=subprocess.PIPE)
+        res = subprocess.Popen(
+            [self.rmapi_path, "-ni", "account"], stdout=subprocess.PIPE
+        )
         res.wait(1000)
         if res.returncode == 0:
             print("rmapi configured correctly")
             print("Device detected")
 
-            matched = re.match(r'.+SyncVersion: (\d+)', res.stdout.read().decode("utf-8"))
+            matched = re.match(
+                r".+SyncVersion: (\d+)", res.stdout.read().decode("utf-8")
+            )
             if matched:
                 self.device_software_version = matched.group(1)
             return True
         else:
             print("rmapi not configured, try to run `rmapi`")
+
     print("No Device detected")
 
     def debug_managed_device_detection(self, devices_on_system, output):
@@ -105,7 +111,12 @@ class ReMarkablePlugin(DevicePlugin):
         pass
 
     def get_device_information(self, end_session=True):
-        return self.device_name, self.device_version, self.device_software_version, "TODO"
+        return (
+            self.device_name,
+            self.device_version,
+            self.device_software_version,
+            "TODO",
+        )
 
     def get_deviceinfo(self):
         self.get_device_information()
@@ -137,8 +148,10 @@ class ReMarkablePlugin(DevicePlugin):
                 name = names[i]
 
             size = os.path.getsize(file)
-            if self.device_free_space + size > self.device_total_space \
-                    and self.device_free_space >= 0:
+            if (
+                self.device_free_space + size > self.device_total_space
+                and self.device_free_space >= 0
+            ):
                 raise FreeSpaceError("No space left in device 'memory'")
             elif self.device_free_space >= 0:
                 self.device_free_space -= size
@@ -153,9 +166,15 @@ class ReMarkablePlugin(DevicePlugin):
 
             # mv file to rename if necessary
             if basename != name:
-                ret = subprocess.call([self.rmapi_path, "mv", remote_file, remote_named_file])
+                ret = subprocess.call(
+                    [self.rmapi_path, "mv", remote_file, remote_named_file]
+                )
                 if ret != 0:
-                    print(f"Renaming of uploaded file {file} was unsuccessful: From: {remote_file} to {remote_named_file}")
+                    print(
+                        f"Renaming of uploaded file {file} was unsuccessful: From: {
+                            remote_file
+                        } to {remote_named_file}"
+                    )
                 else:
                     remote_file = remote_named_file
 
@@ -220,11 +239,14 @@ class ReMarkablePlugin(DevicePlugin):
 
     def get_file(self, path: Path, outfile, end_session=True):
         # try to export annotation but if we're unable for some reason, skip annotations
-        if subprocess.call([self.rmapi_path, "geta", path], cwd=self.working_dir) != 0 \
-                or subprocess.call([self.rmapi_path, "get", path], cwd=self.working_dir) != 0:
+        if (
+            subprocess.call([self.rmapi_path, "geta", path], cwd=self.working_dir) != 0
+            or subprocess.call([self.rmapi_path, "get", path], cwd=self.working_dir)
+            != 0
+        ):
             return
 
-        with open(Path(self.working_dir) / os.path.basename(path), 'r') as f:
+        with open(Path(self.working_dir) / os.path.basename(path), "r") as f:
             for line in f:
                 outfile.write(line)
 
@@ -250,14 +272,18 @@ class ReMarkablePlugin(DevicePlugin):
         if df_res.returncode != 0:
             self.device_free_space = -1
         else:
-            lines = df_res.stdout.read().decode("utf-8").split('\n')
-            df_matching = re.match(r'(/.+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(.+)\s+(/.+)', lines[1])
+            lines = df_res.stdout.read().decode("utf-8").split("\n")
+            df_matching = re.match(
+                r"(/.+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(.+)\s+(/.+)", lines[1]
+            )
             if df_matching:
                 self.device_total_space = int(df_matching.group(2)) * 1024
                 self.device_free_space = int(df_matching.group(4)) * 1024
 
     def _query_rmapi_info(self):
-        rmapi_acc = subprocess.Popen([self.rmapi_path, "account"], stdout=subprocess.PIPE)
+        rmapi_acc = subprocess.Popen(
+            [self.rmapi_path, "account"], stdout=subprocess.PIPE
+        )
 
 
 class ReMarkableBookList(BookList):
@@ -276,6 +302,7 @@ class ReMarkableBookList(BookList):
     def get_collections(self, collection_attributes):
         return self
 
+
 @dataclass()
 class RemarkableBook:
     title: str
@@ -290,7 +317,7 @@ class RemarkableBook:
     def __eq__(self, other):
         return self.uuid == other.uuid
 
+
 class Opts:
     def __init__(self, format_map):
         self.format_map = format_map
-
